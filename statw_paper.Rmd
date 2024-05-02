@@ -1,0 +1,278 @@
+---
+title: "__Finding the best predictor to evaluate the issue of Suicide__"
+author: "Sha Jameson"
+date: "May 2024"
+output:
+  pdf_document:
+    citation_package: natbib
+  bookdown::pdf_book:
+    citation_package: biblatex
+  html_document: default
+  word_document: default
+bibliography: citations.bib
+---
+__Abstract__
+
+Suicide is death caused by injuring oneself with the intent to die. Over the years, more than ever, it has become a significant public health concern worldwide. According to the CDC [@CDC2024SuicideFacts], Suicide rates has increase 36% between 2000 - 2022. This has prompted many different governments and organizations to help raise awareness and make prevention efforts. However, to make efforts in suicide prevention, the cause(s) must be identified This paper examins the potential predcitors of suicide rates by looking at variables including alcohol consumption, education levels, GDP per capita, hours worked per week, and internet access.   
+
+\
+__Keywords__
+
+- Suicide
+- Suicide prevention
+- Mental health
+- COVID-19 impact
+- Alcohol consumption
+- Internet usage
+- Economic factors
+
+\
+__Introduction__
+
+
+Mental health has become an increasingly important issue for the general public. For many years, people's well-being has been overlooked, and we have been asked to put aside our own needs for the public good. This became even more apparent during the COVID-19 pandemic. While staying at home and isolating was necessary for everyone's overall wellness, the unforeseen negative effects of the extended lockdown became evident. The population experienced an increase in mental health crises, a surge in substance abuse including alcohol, a rise in internet usage, and food consumption. Moreover, the lockdown also resulted in a decrease in what humans need, including human interactions, recreational activities, and access to family and friends, which are all imperative for maintaining human fulfillment. 
+
+\
+__Data__
+
+
+The data for this study has been sources from creditable sources including the US Government databases, the World Bank and the World Health Organization. As the times of each variable can vary, the data are all based on 2018, 2019, 2020 depending on sufficiency of data and its completeness. The data that has been collected can very accurately show if there is a correlation between its predictor variable  and suicide.  
+
+\
+__Methods__
+
+
+This study employs multiple regression analysis and ANOVA to investigate the relationship between suicide rates and predictor variables such as GDP per capita, alcohol consumption, education levels, hours worked, and internet accessibility. Each predictor will be evaluated for its statistical significance and contribution to the model, using p-values and confidence intervals to determine the robustness of the associations.
+
+\
+__Simulation__
+
+
+Simulations will be conducted to test the robustness of our findings under various hypothetical scenarios. Using Monte Carlo simulations, we will project future trends in suicide rates based on current data, examining how changes in economic conditions or public health strategies might alter these trends. This approach will help in understanding the potential impact of interventions and economic recovery post-pandemic.
+
+\
+__Application__
+
+
+The findings from this study will be crucial for policymakers, healthcare providers, and community leaders seeking to develop targeted interventions for suicide prevention. By understanding the key predictors of suicide, strategies can be tailored to address the specific needs and risk factors identified, enhancing the effectiveness of public health campaigns and support services.
+
+[@CDC2024MentalHealth]
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(Hmisc)
+library(pastecs)
+library(vcd)
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(rlang)
+library(tidyr)
+library(RefManageR)
+library(tinytex)
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+setwd("/Users/shaj/Library/CloudStorage/OneDrive-UniversityofConnecticut/StatW")
+alcohol <- read_excel('alcohol.xlsx')
+education <- read_excel('Education.xlsx')
+gdp <- read_excel('GDP.xlsx')
+SR <- read_excel('Suicide rate.xlsx')
+work <- read_excel('Work.xlsx')
+internet <- read_excel('Internet access.xlsx')
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+alcohol$Country <-tolower(alcohol$Country)
+education$Country <-tolower(education$Country)
+gdp$Country <-tolower(gdp$Country)
+SR$Country <-tolower(SR$Country)
+work$Country <-tolower(work$Country)
+internet$Country <- tolower(internet$Country)
+
+official <- merge(alcohol, education, by = 'Country')
+official <- merge(official, gdp, by = 'Country')
+official <- merge(official, SR, by = 'Country')
+official <- merge(official, work, by = 'Country')
+official <- merge(official, internet, by= 'Country')
+
+colnames(official) <- c('Country', 'alcohol', 'education', 
+                        'gdp', 'SR', 'work', 'internet')
+```
+[@WorldBank2024Internet]
+[@OurWorldInData2024]
+[@WorldBank2024]
+[@CIA2024AlcoholConsumption]
+
+\newpage
+__Summary statistics__
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+model1 <- lm(SR ~ alcohol, data=official)
+summary(model1)
+
+model2 <- lm(SR ~ education, data=official)
+summary(model2)
+
+model3 <- lm(SR ~ gdp, data=official)
+summary(model3)
+
+model4 <- lm(SR ~ work, data=official)
+summary(model4)
+
+model5 <- lm(SR ~ internet, data=official)
+summary(model5)
+```
+The data summary above gives a good overview on the models. The only significant predictor we see here is Alcohol consumption with a p-val = 0.0164 which is < 0.05. All of the other predictors are not significant. 
+
+\newpage
+__Correlation coefficent__
+\
+\
+Alcohol consumption vs Suicide rate
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+correlation <- cor(official$alcohol, official$SR)
+print(correlation)
+```
+\
+Education vs Suicide rate
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+correlation2 <- cor(official$education, official$SR)
+print(correlation2)
+```
+\
+GDP vs Suicide rate
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+correlation3 <- cor(official$gdp, official$SR)
+print(correlation3)
+```
+\
+Hours worked vs Suicide rate
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+correlation4 <- cor(official$work, official$SR)
+print(correlation4)
+```
+\
+Internet usage vs Suicide rate
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+correlation5 <- cor(official$internet, official$SR)
+print(correlation5)
+```
+Looking at the Correlation coefficents, we can see that non of the variable have a correlation stronger than 0.5 or -0.5 meaning there is very low or close to no correlation with the highest being 0.3224218 between Alcohol consumption vs Suicide rate
+
+\newpage
+__Anova__
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+anova(model1)
+anova(model2)
+anova(model3)
+anova(model4)
+anova(model5)
+
+```
+From the above ANOVA tests, we can see that none of the f-value are large and none of the p-value are < 0.05 indicating that non of the variables are significant. 
+
+\newpage
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width= 3, fig.height=4}
+plot(x=fitted(model1), y=official$SR,
+     xlab = "Alcohol consumption", ylab = "Suicide rate", 
+     main = "SR vs alcohol consumption")
+
+plot(x=fitted(model2), y=official$SR,
+     xlab = "Education years", ylab = "Suicide rate", 
+     main = "SR vs education")
+
+plot(x=fitted(model3), y=official$SR,
+     xlab = "GDP", ylab = "Suicide rate", 
+     main = "SR vs GDP")
+
+plot(x=fitted(model4), y=official$SR,
+     xlab = "Hours work per week", ylab = "Suicide rate", 
+     main = "SR vs work")
+
+plot(x=fitted(model5), y=official$SR,
+     xlab = "% population w/ internet", ylab = "Suicide rate", 
+     main = "Internet vs work")
+
+```
+\
+The plots above show little to no correlation between the predictor and its dependent variable. SR vs alcohol consumption , SR vs education and SR vs Internet usage show a slight positive linear correlation but it is faint.
+
+\newpage
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+comb1 <- aov(SR ~ alcohol + gdp , data=official)
+comb2 <- aov(SR ~ alcohol + work , data=official)
+comb3 <- aov(SR ~ alcohol + internet , data=official)
+comb4 <- aov(SR ~ alcohol + gdp , data=official)
+comb5 <- aov(SR ~ education + gdp , data=official)
+comb6 <- aov(SR ~ education + work , data=official)
+comb7 <- aov(SR ~ education + internet , data=official)
+comb8 <- aov(SR ~ gdp + work , data=official)
+comb9 <- aov(SR ~ gdp + internet , data=official)
+comb10 <- aov(SR ~ work + internet , data=official)
+
+model_list <- list(comb1, comb2, comb3, comb4, comb5, comb6, comb7, comb8, comb9, comb10)
+for (i in 1:length(model_list)) {
+  cat("Summary for comb", i, ":\n")
+  print(summary(model_list[[i]]))
+  cat("\n")
+}
+
+two.way <- aov(SR ~ alcohol + education + gdp + work + internet, data=official)
+summary (two.way)
+```
+\
+Looking at our two way Anova analysis, we can see that most two way ANOVA did not improve the significantce of the data with the exception of education with internet usage, gdp with hours worked, and gdp with internet usage. However their respective p-value of 0.222, 0.211, 0.176, it is still not smaller than 0.05 meaning we cannot reject null. This indicates the statistics is not significant nor does it show any clear correlation. 
+
+With all of the variables together, the p-val kept getting larger which shows by adding each variable, it decreased it significance.
+
+\
+
+__Discussion and conclusion__
+\
+The results of this study indicate that there is no significant correlation between suicide rates and any of the independent variables examined.
+
+The study faced several limitations, primarily due to insufficient data and the omission of potentially influential variables, such as the availability or accessibility of mental health care. [@WHO2024MentalHealth] Moreover, as the perception of mental health and suicide is still evolving, with significant stigma attached in various countries, comprehensive data on this subject remain scarce.
+
+Ultimately, this research underscores the complexity of suicide, which does not stem from a singular cause. Various factors contribute to suicide, and these factors can vary significantly across different cultures and regions. Therefore, to effectively lower suicide rates, it is essential for each country and even specific regions within countries to consider a broad spectrum of influencing factors.
+
+
+\
+__Acknowledgements__
+\
+I would like to express my gratitude to Professor Yuwen Gu for his guidance and encouragement.  
+
+[@R-rmarkdown]
+[@InCollection]
+[@knitr2015]
+[@R-stringr]
+[@R-knitr]
+
+\newpage
+
+
+\
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+
